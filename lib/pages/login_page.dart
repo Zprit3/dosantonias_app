@@ -1,13 +1,44 @@
 import 'package:dosantonias_app/widgets/widgets.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({super.key});
 
-  final usernameController = TextEditingController();
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final emailController = TextEditingController();
+
   final passwordController = TextEditingController();
 
-  void signUserIn() {}
+  void signUserIn() async {
+    //carga
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        });
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
+      Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      if (e.code == 'user-not-fount') {
+        malEmail();
+        //print('No se ha encontrado el email');
+      } else if (e.code == 'wrong-password') {
+        //print('Contraseña equivocada');
+        malPassword();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +67,8 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 50),
               //Campo Usuario
               TextFieldW(
-                controller: usernameController,
-                hintText: 'Usuario',
+                controller: emailController,
+                hintText: 'Email',
                 obscureText: false,
               ),
 
@@ -119,6 +150,28 @@ class LoginPage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void malEmail() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Email ingresado es incorrecto'),
+        );
+      },
+    );
+  }
+
+  void malPassword() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Contraseña incorrecta'),
+        );
+      },
     );
   }
 }

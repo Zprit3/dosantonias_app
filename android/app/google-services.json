@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1013378281721",
+    "project_id": "antonias-29387",
+    "storage_bucket": "antonias-29387.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1013378281721:android:7bc0110d5eaa49283cb228",
+        "android_client_info": {
+          "package_name": "com.example.dosantonias_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1013378281721-l2u517ecsutu5bo4ojta7bsl1c8ju9d6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBktl_GXuVIS_M36RkDISJL3-rtzcgGpHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1013378281721-l2u517ecsutu5bo4ojta7bsl1c8ju9d6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
