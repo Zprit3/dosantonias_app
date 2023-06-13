@@ -15,7 +15,7 @@ class SquareCanva extends StatelessWidget {
       ),
       child: Image.asset(
         imagePath,
-        height: 50,
+        height: 40,
       ),
     );
   }
