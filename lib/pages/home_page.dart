@@ -1,17 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/pages/pages.dart';
-import 'package:dosantonias_app/widgets/textfield_widget.dart';
+import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
+
   final textController = TextEditingController();
 
   void signUserOut() {
     FirebaseAuth.instance.signOut();
+  }
+
+  void gtProfilePage() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
+    );
   }
 
   void postMessage() {
@@ -21,8 +35,14 @@ class HomePage extends StatelessWidget {
         'UserEmail': user.email,
         'Message': textController.text,
         'TimeStamp': Timestamp.now(),
+        'Likes': [],
       });
     }
+    //debido a la necesidad de usar setstate para limpiar el campo de texto en el timeline
+    //el widget de la clase pasa de sl a sf
+    setState(() {
+      textController.clear();
+    });
   }
 
   @override
@@ -30,14 +50,13 @@ class HomePage extends StatelessWidget {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         appBar: AppBar(
-            title: const Text("Las 2 Antonias"),
-            backgroundColor: Colors.grey[900],
-            actions: [
-              IconButton(
-                onPressed: signUserOut,
-                icon: const Icon(Icons.logout),
-              )
-            ]),
+          title: const Text("Las 2 Antonias"),
+          backgroundColor: Colors.grey[900],
+        ),
+        drawer: SupDrawer(
+          onProfileTap: gtProfilePage,
+          onSignOutTap: signUserOut,
+        ),
         body: Center(
           child: Column(
             children: [
@@ -60,6 +79,8 @@ class HomePage extends StatelessWidget {
                               return TimeLinePost(
                                 message: post['Message'],
                                 user: post['UserEmail'],
+                                postId: post.id,
+                                likes: List<String>.from(post['Likes'] ?? []),
                               );
                             });
                       } else if (snapshot.hasError) {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({super.key,required this.onTap});
+  const LoginPage({super.key, required this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 15),
                   ButtonW(
-                    text:"Ingresa",
+                    text: "Ingresa",
                     onTap: signUserIn,
                   ),
                   const SizedBox(height: 15),
@@ -131,8 +131,9 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SquareCanva(onTap: () => AuthService().signInWithGoogle(), 
-                      imagePath: 'lib/images/Glogo.png'),
+                      SquareCanva(
+                          onTap: () => AuthService().signInWithGoogle(),
+                          imagePath: 'lib/images/Glogo.png'),
                     ],
                   ),
                   const SizedBox(height: 15),
