@@ -1,22 +1,23 @@
-import 'package:dosantonias_app/pages/auth_service.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:dosantonias_app/pages/auth_service.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   final Function()? onTap;
-  const LoginPage({super.key,required this.onTap});
+  const RegisterPage({super.key, required this.onTap});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
 
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
-  void signUserIn() async {
+  void signUserUp() async {
     //carga
     showDialog(
         context: context,
@@ -27,9 +28,14 @@ class _LoginPageState extends State<LoginPage> {
         });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
-      Navigator.pop(context);
+      if (passwordController.text == confirmPasswordController.text) {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: emailController.text, password: passwordController.text);
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context);
+      } else {
+        errorMessage("Contraseña no coincide");
+      }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       errorMessage(e.code);
@@ -60,8 +66,16 @@ class _LoginPageState extends State<LoginPage> {
                   //logo
                   Image.asset(
                     'lib/images/icoMainBW.png',
-                    height: 200,
-                    width: 200,
+                    height: 150,
+                    width: 150,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Crea un nuevo usuario',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 30),
                   //mensaje de bienvenida
@@ -82,22 +96,17 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 10),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '¿Olvidaste la contraseña?',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
+                  //contraseña
+                  TextFieldW(
+                    controller: passwordController,
+                    hintText: 'Confirmar Contraseña',
+                    obscureText: true,
                   ),
+
                   const SizedBox(height: 15),
                   ButtonW(
-                    text:"Ingresa",
-                    onTap: signUserIn,
+                    text: "Registrate",
+                    onTap: signUserUp,
                   ),
                   const SizedBox(height: 15),
                   Padding(
@@ -131,22 +140,23 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SquareCanva(onTap: () => AuthService().signInWithGoogle(), 
-                      imagePath: 'lib/images/Glogo.png'),
+                      SquareCanva(
+                          onTap: () => AuthService().signInWithGoogle(),
+                          imagePath: 'lib/images/Glogo.png'),
                     ],
                   ),
                   const SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('¿Aún no estas registrado?'),
+                      const Text('¿Si tienes una cuenta?'),
                       const SizedBox(
                         width: 4,
                       ),
                       GestureDetector(
                         onTap: widget.onTap,
                         child: const Text(
-                          'Hazlo ya',
+                          'Ingresa aquí',
                           style: TextStyle(color: Colors.deepOrangeAccent),
                         ),
                       ),

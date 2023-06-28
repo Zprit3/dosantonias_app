@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "1013378281721-l2u517ecsutu5bo4ojta7bsl1c8ju9d6.apps.googleusercontent.com",
+          "client_id": "1013378281721-s6ci3s9gqnvunfi3di150gsun32d2tse.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dosantonias_app",
+            "certificate_hash": "f81a58e8239a63b68127bbf84a0964ae5fd28f7f"
+          }
+        },
+        {
+          "client_id": "1013378281721-16uqf9lriuchatd0jepbuiictn8a94qj.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +35,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1013378281721-l2u517ecsutu5bo4ojta7bsl1c8ju9d6.apps.googleusercontent.com",
+              "client_id": "1013378281721-16uqf9lriuchatd0jepbuiictn8a94qj.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1013378281721-21t9a8ana3g5n0qr48e6q4b15hehcig1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dosantoniasApp"
+              }
             }
           ]
         }
