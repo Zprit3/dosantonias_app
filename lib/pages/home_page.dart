@@ -29,6 +29,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void gtMapPage() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MapPage()),
+    );
+  }
+
   void postMessage() {
     if (textController.text.isNotEmpty) {
       //guardar en firebase
@@ -56,6 +64,7 @@ class _HomePageState extends State<HomePage> {
         drawer: SupDrawer(
           onProfileTap: gtProfilePage,
           onSignOutTap: signUserOut,
+          onMapTap: gtMapPage,
         ),
         body: Center(
           child: Column(

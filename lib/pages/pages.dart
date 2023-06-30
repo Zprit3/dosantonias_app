@@ -6,3 +6,5 @@ export 'switcher_page.dart';
 export 'auth_service.dart';
 export 'timeline_post.dart';
 export 'profile_page.dart';
+export 'map_page.dart';
+export 'store_page.dart';
