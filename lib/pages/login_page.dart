@@ -39,14 +39,13 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: const AssetImage('lib/images/BGbasic.png'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              const Color.fromARGB(255, 255, 255, 255).withOpacity(0.9),
+              Theme.of(context).colorScheme.background.withOpacity(0.5),
               BlendMode.luminosity,
             ),
           ),
@@ -59,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   //logo
                   Image.asset(
-                    'lib/images/icoMainBW.png',
+                    'lib/images/icoMain.png',
                     height: 200,
                     width: 200,
                   ),
@@ -107,20 +106,20 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: Divider(
                             thickness: 0.5,
-                            color: Colors.grey[400],
+                            color: Colors.grey[600],
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Text(
                             'O continua con',
-                            style: TextStyle(color: Colors.grey[700]),
+                            style: TextStyle(color: Colors.grey[500]),
                           ),
                         ),
                         Expanded(
                           child: Divider(
                             thickness: 0.5,
-                            color: Colors.grey[400],
+                            color: Colors.grey[600],
                           ),
                         ),
                       ],
@@ -142,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       const Text('¿Aún no estas registrado?'),
                       const SizedBox(
-                        width: 4,
+                        width: 5,
                       ),
                       GestureDetector(
                         onTap: widget.onTap,

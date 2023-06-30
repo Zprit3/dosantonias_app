@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,22 +21,35 @@ class _RegisterPageState extends State<RegisterPage> {
   void signUserUp() async {
     //carga
     showDialog(
-        context: context,
-        builder: (context) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        });
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+    //verificacion de contraseñas
+
+    if (passwordController.text != confirmPasswordController.text) {
+      Navigator.pop(context);
+      errorMessage("Contraseña no coincide");
+      return;
+    }
 
     try {
-      if (passwordController.text == confirmPasswordController.text) {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text);
-        // ignore: use_build_context_synchronously
-        Navigator.pop(context);
-      } else {
-        errorMessage("Contraseña no coincide");
-      }
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      //despues de crear usuario, crear un documento en la coleccion de firestore
+      FirebaseFirestore.instance
+          .collection("Usuarios")
+          .doc(userCredential.user!.email!)
+          .set({
+        'usuario': emailController.text.split('@')[0], //nombre por defecto
+        'biografia': 'Cuentale al mundo quien eres..',
+        //agregar elementos del usuario aqui
+      });
+      if (context.mounted) Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       errorMessage(e.code);
@@ -45,14 +59,14 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
             image: const AssetImage('lib/images/BGbasic.png'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
-              const Color.fromARGB(255, 255, 255, 255).withOpacity(0.9),
+              Theme.of(context).colorScheme.background.withOpacity(0.8),
               BlendMode.luminosity,
             ),
           ),
@@ -73,8 +87,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   Text(
                     'Crea un nuevo usuario',
                     style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: 16,
+                      color: Colors.grey[500],
+                      fontSize: 20,
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -98,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   //contraseña
                   TextFieldW(
-                    controller: passwordController,
+                    controller: confirmPasswordController,
                     hintText: 'Confirmar Contraseña',
                     obscureText: true,
                   ),
@@ -176,7 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Colors.deepOrange,
+          backgroundColor: Colors.orange,
           title: Center(
             child: Text(
               m,

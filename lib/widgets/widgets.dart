@@ -5,3 +5,5 @@ export 'supdrawer_widget.dart';
 export 'likebutton_widget.dart';
 export 'listcanva_widget.dart';
 export 'textbox_widget.dart';
+export 'postcomments_widget.dart';
+export 'commentbutton_widget.dart';

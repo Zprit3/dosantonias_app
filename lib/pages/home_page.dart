@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dosantonias_app/otherthings/fix_timestamp.dart';
 import 'package:dosantonias_app/pages/pages.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -48,10 +49,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
           title: const Text("Las 2 Antonias"),
-          backgroundColor: Colors.grey[900],
         ),
         drawer: SupDrawer(
           onProfileTap: gtProfilePage,
@@ -81,6 +81,7 @@ class _HomePageState extends State<HomePage> {
                                 user: post['UserEmail'],
                                 postId: post.id,
                                 likes: List<String>.from(post['Likes'] ?? []),
+                                time: formatTime(post['TimeStamp']),
                               );
                             });
                       } else if (snapshot.hasError) {

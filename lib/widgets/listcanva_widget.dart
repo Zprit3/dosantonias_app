@@ -17,6 +17,7 @@ class ListCanva extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 10.0),
       child: ListTile(
+        //reemplazar con imagen
         leading: Icon(
           icon,
           color: Colors.white,

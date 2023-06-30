@@ -1,11 +1,9 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class LikeButton extends StatelessWidget {
   final bool liked;
-  void Function()? onTap;
-  LikeButton({
+  final void Function()? onTap;
+  const LikeButton({
     Key? key,
     required this.liked,
     required this.onTap,
@@ -17,7 +15,7 @@ class LikeButton extends StatelessWidget {
       onTap: onTap,
       child: Icon(
         liked ? Icons.favorite : Icons.favorite_border,
-        color: liked ? Colors.orange : Colors.grey,
+        color: liked ? Colors.deepOrangeAccent : Colors.grey,
       ),
     );
   }

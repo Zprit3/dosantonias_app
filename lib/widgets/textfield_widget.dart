@@ -14,18 +14,19 @@ class TextFieldW extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 5.0),
       child: TextField(
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+          enabledBorder: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.secondary),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey.shade400),
           ),
-          fillColor: Colors.grey.shade200,
+          fillColor: Theme.of(context).colorScheme.primary,
           filled: true,
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey[500]),
