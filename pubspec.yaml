@@ -47,8 +47,11 @@ dependencies:
       path: packages/location
   timer_count_down: ^2.2.2
   flutter_countdown_timer: ^4.1.0
-  screenshot: ^2.1.0
-
+  flutter_native_screenshot: ^1.1.2
+  path_provider: ^2.0.15
+  image_gallery_saver: ^2.0.2
+  animated_text_kit: ^4.2.2
+  
 
 dev_dependencies:
   flutter_test:

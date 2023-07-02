@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -43,7 +46,7 @@ class _MapPageState extends State<MapPage> {
         });
       });
     } catch (e) {
-      print('Error al iniciar el servicio de ubicacion: $e');
+      print('Error al iniciar el servicio de ubicación: $e');
     }
   }
 
@@ -106,6 +109,31 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  Future<void> captureScreenshot() async {
+    try {
+      final Uint8List? imageBytes = await mapController.takeSnapshot();
+      final result = await ImageGallerySaver.saveImage(imageBytes!);
+
+      if (result['isSuccess']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Captura de pantalla guardada en la galería'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('No se pudo guardar la captura de pantalla'),
+          ),
+        );
+      }
+
+      print('Ruta de la captura de pantalla guardada: ${result['filePath']}');
+    } catch (e) {
+      print('Error al capturar la pantalla: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,7 +141,9 @@ class _MapPageState extends State<MapPage> {
         children: [
           GoogleMap(
             initialCameraPosition: const CameraPosition(
-                target: LatLng(-36.6297, -71.8330), zoom: 16),
+              target: LatLng(-36.6297, -71.8330),
+              zoom: 17,
+            ),
             markers: markers,
             polylines: polyline != null ? Set<Polyline>.from([polyline!]) : {},
             onMapCreated: (GoogleMapController controller) {
@@ -133,8 +163,9 @@ class _MapPageState extends State<MapPage> {
               child: Text(
                 'Tiempo: $elapsedTime',
                 style: TextStyle(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.tertiary),
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
               ),
             ),
           ),
@@ -155,8 +186,9 @@ class _MapPageState extends State<MapPage> {
                     child: Text(
                       'Iniciar',
                       style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.tertiary),
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                     ),
                   ),
                   ElevatedButton(
@@ -164,8 +196,19 @@ class _MapPageState extends State<MapPage> {
                     child: Text(
                       'Terminar',
                       style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.tertiary),
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: captureScreenshot,
+                    child: Text(
+                      'Capturar',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                     ),
                   ),
                 ],
