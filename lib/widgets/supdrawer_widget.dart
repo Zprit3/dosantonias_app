@@ -5,8 +5,13 @@ class SupDrawer extends StatelessWidget {
   final void Function()? onProfileTap;
   final void Function()? onSignOutTap;
   final void Function()? onMapTap;
+  final void Function()? onStoreTap;
   const SupDrawer(
-      {super.key, required this.onProfileTap, required this.onSignOutTap, required this.onMapTap});
+      {super.key,
+      required this.onProfileTap,
+      required this.onSignOutTap,
+      required this.onMapTap, 
+      required this.onStoreTap});
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +37,20 @@ class SupDrawer extends StatelessWidget {
             ),
             //perfil
             ListCanva(
-                icon: Icons.person, 
-                text: 'P E R F I L', 
-                onTap: onProfileTap
-            ),
+                icon: Icons.person, text: 'P E R F I L', onTap: onProfileTap),
             //map tracker
 
             ListCanva(
               icon: Icons.map_outlined,
               text: 'M A P A',
               onTap: onMapTap,
+            ),
+
+            //tienda
+            ListCanva(
+              icon: Icons.store,
+              text: 'T I E N D A',
+              onTap: onStoreTap,
             )
           ],
         ),
@@ -49,9 +58,7 @@ class SupDrawer extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 30.0),
           child: ListCanva(
-              icon: Icons.logout, 
-              text: 'S A L I R', 
-              onTap: onSignOutTap),
+              icon: Icons.logout, text: 'S A L I R', onTap: onSignOutTap),
         ),
       ]),
     );

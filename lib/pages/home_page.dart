@@ -37,6 +37,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void gtStorePage() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => StorePage()),
+    );
+  }
+
   void postMessage() {
     if (textController.text.isNotEmpty) {
       //guardar en firebase
@@ -65,6 +73,7 @@ class _HomePageState extends State<HomePage> {
           onProfileTap: gtProfilePage,
           onSignOutTap: signUserOut,
           onMapTap: gtMapPage,
+          onStoreTap: gtStorePage,
         ),
         body: Center(
           child: Column(
