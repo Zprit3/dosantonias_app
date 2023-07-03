@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'dart:math';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -19,8 +21,9 @@ class _MapPageState extends State<MapPage> {
   Set<Marker> markers = {};
   List<LatLng> polylineCoordinates = [];
   Polyline? polyline;
-  Stopwatch stopwatch = Stopwatch();
-  String elapsedTime = '00:00:00';
+  Timer? timer;
+  int secondsElapsed = 0;
+  double totalDistance = 0.0;
 
   @override
   void initState() {
@@ -36,12 +39,13 @@ class _MapPageState extends State<MapPage> {
       location.onLocationChanged.listen((LocationData newLocation) {
         setState(() {
           currentLocation = newLocation;
-          if (stopwatch.isRunning) {
+          if (timer != null && timer!.isActive) {
             polylineCoordinates.add(LatLng(
               newLocation.latitude!,
               newLocation.longitude!,
             ));
             updatePolyline();
+            updateDistance();
           }
         });
       });
@@ -72,9 +76,14 @@ class _MapPageState extends State<MapPage> {
       polylineCoordinates.add(initialPosition);
       updatePolyline();
 
-      stopwatch.reset();
-      stopwatch.start();
-      elapsedTime = '00:00:00';
+      timer?.cancel();
+      secondsElapsed = 0;
+      totalDistance = 0.0;
+      timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+        setState(() {
+          secondsElapsed++;
+        });
+      });
     });
   }
 
@@ -93,8 +102,8 @@ class _MapPageState extends State<MapPage> {
         ),
       );
 
-      stopwatch.stop();
-      elapsedTime = stopwatch.elapsed.toString().split('.')[0];
+      timer?.cancel();
+      timer = null;
     });
   }
 
@@ -109,10 +118,57 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  void updateDistance() {
+    if (polylineCoordinates.length >= 2) {
+      final LatLng lastPosition =
+          polylineCoordinates[polylineCoordinates.length - 2];
+      final LatLng currentPosition = polylineCoordinates.last;
+      final double distance = calculateDistance(lastPosition, currentPosition);
+      setState(() {
+        totalDistance += distance;
+      });
+    }
+  }
+
+  double calculateDistance(LatLng fromPosition, LatLng toPosition) {
+    const int earthRadius = 6371000; // Radio de la Tierra en metros
+    final double lat1 = fromPosition.latitude;
+    final double lon1 = fromPosition.longitude;
+    final double lat2 = toPosition.latitude;
+    final double lon2 = toPosition.longitude;
+
+    final double dLat = _toRadians(lat2 - lat1);
+    final double dLon = _toRadians(lon2 - lon1);
+
+    final double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(lat1)) *
+            cos(_toRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+    final double c = 2 * asin(sqrt(a));
+
+    return earthRadius * c;
+  }
+
+  double _toRadians(double degree) {
+    return degree * (pi / 180);
+  }
+
   Future<void> captureScreenshot() async {
     try {
       final Uint8List? imageBytes = await mapController.takeSnapshot();
-      final result = await ImageGallerySaver.saveImage(imageBytes!);
+      final String timestamp =
+          DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+      final String formattedTime = Duration(seconds: secondsElapsed)
+          .toString()
+          .split('.')
+          .first
+          .padLeft(8, '0');
+      final String formattedDistance = totalDistance.toStringAsFixed(2);
+      final String filename =
+          'screenshot_$timestamp-$formattedTime-$formattedDistance.jpg';
+      final result =
+          await ImageGallerySaver.saveImage(imageBytes!, name: filename);
 
       if (result['isSuccess']) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,7 +191,20 @@ class _MapPageState extends State<MapPage> {
   }
 
   @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String formattedTime = Duration(seconds: secondsElapsed)
+        .toString()
+        .split('.')
+        .first
+        .padLeft(8, '0');
+    final String formattedDistance = totalDistance.toStringAsFixed(2);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -145,7 +214,7 @@ class _MapPageState extends State<MapPage> {
               zoom: 17,
             ),
             markers: markers,
-            polylines: polyline != null ? Set<Polyline>.from([polyline!]) : {},
+            polylines: polyline != null ? <Polyline>{polyline!} : {},
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
             },
@@ -160,12 +229,23 @@ class _MapPageState extends State<MapPage> {
                     Theme.of(context).colorScheme.background.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                'Tiempo: $elapsedTime',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    'Tiempo: $formattedTime',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                  Text(
+                    'Distancia: $formattedDistance metros',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -182,7 +262,8 @@ class _MapPageState extends State<MapPage> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: stopwatch.isRunning ? null : startRoute,
+                    onPressed:
+                        timer != null && timer!.isActive ? null : startRoute,
                     child: Text(
                       'Iniciar',
                       style: TextStyle(
@@ -192,7 +273,8 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: stopwatch.isRunning ? finishRoute : null,
+                    onPressed:
+                        timer != null && timer!.isActive ? finishRoute : null,
                     child: Text(
                       'Terminar',
                       style: TextStyle(

@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/otherthings/fix_timestamp.dart';
 import 'package:dosantonias_app/pages/pages.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +19,31 @@ class _HomePageState extends State<HomePage> {
   final user = FirebaseAuth.instance.currentUser!;
 
   final textController = TextEditingController();
+
+  Uint8List? _file;
+
+  _imageSelect(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text('Selecciona imagen'),
+            children: [
+              SimpleDialogOption(
+                padding: EdgeInsets.all(20),
+                child: Text('Tomar una foto'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  Uint8List file = await pickImage(ImageSource.camera);
+                  setState(() {
+                    _file = file;
+                  });
+                },
+              )
+            ],
+          );
+        });
+  }
 
   void signUserOut() {
     FirebaseAuth.instance.signOut();
@@ -120,13 +148,25 @@ class _HomePageState extends State<HomePage> {
                     Expanded(
                       child: TextFieldW(
                         controller: textController,
-                        hintText: 'Escribe algo',
+                        hintText: 'Publica lo que gustes :3',
                         obscureText: false,
                       ),
                     ),
+                    Column(
+                      children: [
+                        IconButton(
+                          onPressed: () => _imageSelect(context),
+                          icon: const Icon(Icons.photo),
+                        ),
+                        const Text(
+                          'Subir Imagen',
+                          style: TextStyle(fontSize: 8),
+                        ),
+                      ],
+                    ),
                     IconButton(
                       onPressed: postMessage,
-                      icon: const Icon(Icons.arrow_circle_up),
+                      icon: const Icon(Icons.arrow_circle_up_outlined),
                     ),
                   ],
                 ),
@@ -135,7 +175,7 @@ class _HomePageState extends State<HomePage> {
               Text('Logeado como ${user.email!}'),
 
               const SizedBox(
-                height: 50,
+                height: 25,
               )
             ],
           ),

@@ -51,6 +51,10 @@ dependencies:
   path_provider: ^2.0.15
   image_gallery_saver: ^2.0.2
   animated_text_kit: ^4.2.2
+  screenshot: ^2.1.0
+  intl: ^0.18.1
+  image_picker: ^1.0.0
+  firebase_storage: ^11.2.4
   
 
 dev_dependencies:

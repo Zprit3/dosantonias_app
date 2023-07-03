@@ -10,7 +10,7 @@ class SupDrawer extends StatelessWidget {
       {super.key,
       required this.onProfileTap,
       required this.onSignOutTap,
-      required this.onMapTap, 
+      required this.onMapTap,
       required this.onStoreTap});
 
   @override
@@ -49,7 +49,7 @@ class SupDrawer extends StatelessWidget {
             //tienda
             ListCanva(
               icon: Icons.store,
-              text: 'T I E N D A',
+              text: 'T I C K E T S',
               onTap: onStoreTap,
             )
           ],

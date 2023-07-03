@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/otherthings/fix_timestamp.dart';
-import 'package:dosantonias_app/widgets/deletebutton_widget.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

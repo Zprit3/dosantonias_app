@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+//import 'package:dosantonias_app/pages/pages.dart';
+import 'package:dosantonias_app/otherthings/fix_timestamp.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -11,10 +13,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  //usuario
   final user = FirebaseAuth.instance.currentUser!;
-
   final usersCollection = FirebaseFirestore.instance.collection("Usuarios");
+  final userPostsCollection =
+      FirebaseFirestore.instance.collection("Posts del usuario");
 
   //editor
   Future<void> editField(String field) async {
@@ -115,13 +117,52 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 const SizedBox(height: 20),
 
-                //posts
+                //publicaciones
                 Padding(
                   padding: const EdgeInsets.only(left: 25.0),
                   child: Text(
                     'Publicaciones',
                     style: TextStyle(color: Colors.grey[600]),
                   ),
+                ),
+
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("Posts del usuario")
+                      .where('UserEmail', isEqualTo: user.email)
+                      .orderBy('TimeStamp', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final posts = snapshot.data!.docs;
+
+                      return Column(
+                        children: posts.map((post) {
+                          final message = post['Message'];
+                          final time = formatTime(post['TimeStamp']);
+
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 20.0, top: 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                PostComment(
+                                  text: message,
+                                  user: user.email!,
+                                  time: time,
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    }
+                    return const Center(child: CircularProgressIndicator());
+                  },
                 ),
               ],
             );

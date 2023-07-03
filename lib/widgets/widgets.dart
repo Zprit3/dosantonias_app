@@ -7,3 +7,5 @@ export 'listcanva_widget.dart';
 export 'textbox_widget.dart';
 export 'postcomments_widget.dart';
 export 'commentbutton_widget.dart';
+export 'deletebutton_widget.dart';
+export 'pickimage.dart';
