@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
               Theme.of(context).colorScheme.background.withOpacity(0.5),
-              BlendMode.luminosity,
+              BlendMode.lighten,
             ),
           ),
         ),

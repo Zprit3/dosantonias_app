@@ -10,25 +10,25 @@ class TimeLinePost extends StatefulWidget {
   final String time;
   final String postId;
   final List<String> likes;
+  final String? image;
 
-  const TimeLinePost(
-      {super.key,
-      required this.message,
-      required this.user,
-      required this.postId,
-      required this.likes,
-      required this.time});
+  const TimeLinePost({
+    Key? key,
+    required this.message,
+    required this.user,
+    required this.time,
+    required this.postId,
+    required this.likes,
+    this.image,
+  }) : super(key: key);
 
   @override
   State<TimeLinePost> createState() => _TimeLinePostState();
 }
 
 class _TimeLinePostState extends State<TimeLinePost> {
-  //usuario
   final user = FirebaseAuth.instance.currentUser!;
   bool liked = false;
-
-  //comentarios
   final _commentTextController = TextEditingController();
 
   @override
@@ -39,77 +39,78 @@ class _TimeLinePostState extends State<TimeLinePost> {
 
   void deletePost() {
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text("Borrar publicacion"),
-              content: const Text("¿De verdad queres borrar la publicación?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancelar"),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    //primero borrar comentarios en firestore
-                    final commentLot = await FirebaseFirestore.instance
-                        .collection("Posts del usuario")
-                        .doc(widget.postId)
-                        .collection("Comentarios")
-                        .get();
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Borrar publicacion"),
+        content: const Text("¿De verdad queres borrar la publicación?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () async {
+              final commentLot = await FirebaseFirestore.instance
+                  .collection("Posts del usuario")
+                  .doc(widget.postId)
+                  .collection("Comentarios")
+                  .get();
 
-                    for (var doc in commentLot.docs) {
-                      await FirebaseFirestore.instance
-                          .collection("Posts del usuario")
-                          .doc(widget.postId)
-                          .collection("Comentarios")
-                          .doc(doc.id)
-                          .delete();
-                    }
-                    //borrar publicacion
-                    FirebaseFirestore.instance
-                        .collection("Posts del usuario")
-                        .doc(widget.postId)
-                        .delete()
-                        .then((value) => print("Publicación borrada"))
-                        .catchError((error) =>
-                            print("Fallo al intentar borrar la publicación"));
+              for (var doc in commentLot.docs) {
+                await FirebaseFirestore.instance
+                    .collection("Posts del usuario")
+                    .doc(widget.postId)
+                    .collection("Comentarios")
+                    .doc(doc.id)
+                    .delete();
+              }
 
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Borrar"),
-                ),
-              ],
-            ));
+              FirebaseFirestore.instance
+                  .collection("Posts del usuario")
+                  .doc(widget.postId)
+                  .delete()
+                  .then((value) => print("Publicación borrada"))
+                  .catchError((error) =>
+                      print("Fallo al intentar borrar la publicación"));
+
+              Navigator.pop(context);
+            },
+            child: const Text("Borrar"),
+          ),
+        ],
+      ),
+    );
   }
 
   void showCommentDialog() {
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text("Agregar comentario"),
-              content: TextField(
-                controller: _commentTextController,
-                decoration:
-                    const InputDecoration(hintText: "Escribe un comentario.."),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _commentTextController.clear();
-                  },
-                  child: const Text("Cancelar"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    addComment(_commentTextController.text);
-                    Navigator.pop(context);
-                    _commentTextController.clear();
-                  },
-                  child: const Text("Publicar"),
-                )
-              ],
-            ));
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Agregar comentario"),
+        content: TextField(
+          controller: _commentTextController,
+          decoration:
+              const InputDecoration(hintText: "Escribe un comentario.."),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _commentTextController.clear();
+            },
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () {
+              addComment(_commentTextController.text);
+              Navigator.pop(context);
+              _commentTextController.clear();
+            },
+            child: const Text("Publicar"),
+          ),
+        ],
+      ),
+    );
   }
 
   void addComment(String commentText) {
@@ -120,28 +121,24 @@ class _TimeLinePostState extends State<TimeLinePost> {
         .add({
       "Comentario": commentText,
       "Comentado por": user.email,
-      "Fecha comentario": Timestamp.now()
+      "Fecha comentario": Timestamp.now(),
     });
   }
 
-  //like switcher (implementar parecido al switcher de paginas)
   void likeSwitcher() {
     setState(() {
       liked = !liked;
     });
 
-    //agregar comentarios a publicaciones. guardar comentarios en firestore
-
     DocumentReference postRef = FirebaseFirestore.instance
         .collection('Posts del usuario')
         .doc(widget.postId);
+
     if (liked) {
-      //si el post esta likeado, agregar el email del usuario al campo de likes
       postRef.update({
         'Likes': FieldValue.arrayUnion([user.email])
       });
     } else {
-      //si el post se actualiza como unlike, remover el email del campo likes
       postRef.update({
         'Likes': FieldValue.arrayRemove([user.email])
       });
@@ -160,7 +157,6 @@ class _TimeLinePostState extends State<TimeLinePost> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //Muro del timeline
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,6 +164,18 @@ class _TimeLinePostState extends State<TimeLinePost> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (widget.image != null)
+                    // ignore: sized_box_for_whitespace
+                    Container(
+                      width: 250,
+                      child: Image.network(
+                        widget.image!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 400,
+                      ),
+                    ),
+                  const SizedBox(height: 5),
                   Text(widget.message),
                   const SizedBox(height: 5),
                   Row(
@@ -185,19 +193,15 @@ class _TimeLinePostState extends State<TimeLinePost> {
             ],
           ),
           const SizedBox(height: 20),
-          //botones aqui
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              //seccion de like
               Column(
                 children: [
-                  //boton like
                   LikeButton(
                     liked: liked,
                     onTap: likeSwitcher,
                   ),
-                  //contador likes
                   const SizedBox(height: 5),
                   Text(
                     widget.likes.length.toString(),
@@ -205,15 +209,10 @@ class _TimeLinePostState extends State<TimeLinePost> {
                   ),
                 ],
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              //seccion de comentario
+              const SizedBox(width: 10),
               Column(
                 children: [
-                  //boton
                   CommentButton(onTap: showCommentDialog),
-                  //contador likes
                   const SizedBox(height: 5),
                   const Text(
                     '0',
@@ -224,46 +223,35 @@ class _TimeLinePostState extends State<TimeLinePost> {
             ],
           ),
           const SizedBox(height: 5),
-
-          //comentarios mostrados
           StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("Posts del usuario")
-                  .doc(widget.postId)
-                  .collection("Comentarios")
-                  .orderBy("Fecha comentario", descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                return ListView(
-                  shrinkWrap: true, //para acomodar las listas
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: snapshot.data!.docs.map((doc) {
-                    final commentData = doc.data() as Map<String, dynamic>;
-
-                    return PostComment(
-                        text: commentData["Comentario"],
-                        user: commentData["Comentado por"],
-                        time: formatTime(commentData["Fecha comentario"]));
-                  }).toList(),
+            stream: FirebaseFirestore.instance
+                .collection("Posts del usuario")
+                .doc(widget.postId)
+                .collection("Comentarios")
+                .orderBy("Fecha comentario", descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: CircularProgressIndicator(),
                 );
-              }),
+              }
+              return ListView(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: snapshot.data!.docs.map((doc) {
+                  final commentData = doc.data() as Map<String, dynamic>;
+                  return PostComment(
+                    text: commentData["Comentario"],
+                    user: commentData["Comentado por"],
+                    time: formatTime(commentData["Fecha comentario"]),
+                  );
+                }).toList(),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 }
-
-    /*
-          //IMAGEN DE PERFIL. PROBAR CON FIREBASE
-          Container(
-            decoration: 
-              BoxDecoration(shape: BoxShape.circle, color: Colors.grey[400]),
-              padding: EdgeInsets.all(10),
-              child:Icon(Icons.person,
-                color: Colors.white),
-          ),*/

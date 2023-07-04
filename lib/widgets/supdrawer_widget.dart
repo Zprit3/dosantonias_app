@@ -16,16 +16,16 @@ class SupDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: Theme.of(context).colorScheme.background,
       child:
           Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Column(
           children: [
             //header
-            const DrawerHeader(
+            DrawerHeader(
               child: Icon(
                 Icons.person,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 size: 64,
               ),
             ),

@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/otherthings/fix_timestamp.dart';
 import 'package:dosantonias_app/pages/pages.dart';
@@ -7,9 +7,12 @@ import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -22,27 +25,57 @@ class _HomePageState extends State<HomePage> {
 
   Uint8List? _file;
 
-  _imageSelect(BuildContext context) async {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text('Selecciona imagen'),
-            children: [
-              SimpleDialogOption(
-                padding: EdgeInsets.all(20),
-                child: Text('Tomar una foto'),
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  Uint8List file = await pickImage(ImageSource.camera);
+  Future<void> _imageSelect(BuildContext context) async {
+    final picker = ImagePicker();
+    final pickedFile = await showDialog(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Selecciona imagen'),
+          children: [
+            SimpleDialogOption(
+              padding: const EdgeInsets.all(20),
+              child: const Text('Tomar una foto'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final pickedFile =
+                    await picker.pickImage(source: ImageSource.camera);
+                if (pickedFile != null) {
+                  final file = File(pickedFile.path);
+                  final fileBytes = await file.readAsBytes();
                   setState(() {
-                    _file = file;
+                    _file = fileBytes;
                   });
-                },
-              )
-            ],
-          );
-        });
+                }
+              },
+            ),
+            SimpleDialogOption(
+              padding: const EdgeInsets.all(20),
+              child: const Text('Elige una imagen desde la galería'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                final pickedFile =
+                    await picker.pickImage(source: ImageSource.gallery);
+                if (pickedFile != null) {
+                  final file = File(pickedFile.path);
+                  final fileBytes = await file.readAsBytes();
+                  setState(() {
+                    _file = fileBytes;
+                  });
+                }
+              },
+            ),
+            SimpleDialogOption(
+              padding: const EdgeInsets.only(left: 200, top: 50),
+              child: const Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void signUserOut() {
@@ -73,116 +106,154 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void postMessage() {
+  void postMessage() async {
     if (textController.text.isNotEmpty) {
-      //guardar en firebase
+      String? imageUrl;
+      if (_file != null) {
+        // Subir la imagen a Firebase Storage
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('images')
+            .child(DateTime.now().toString());
+        final uploadTask = storageRef.putData(_file!);
+        final snapshot = await uploadTask.whenComplete(() {});
+        if (snapshot.state == TaskState.success) {
+          final downloadUrl = await storageRef.getDownloadURL();
+          imageUrl = downloadUrl;
+        }
+      }
+
+      // Guardar en Firebase Firestore
       FirebaseFirestore.instance.collection("Posts del usuario").add({
         'UserEmail': user.email,
         'Message': textController.text,
         'TimeStamp': Timestamp.now(),
         'Likes': [],
+        'Image': imageUrl,
       });
     }
-    //debido a la necesidad de usar setstate para limpiar el campo de texto en el timeline
-    //el widget de la clase pasa de sl a sf
+    // Debido a la necesidad de usar setState para limpiar el campo de texto en el timeline,
+    // el widget de la clase pasa de sl a sf
     setState(() {
       textController.clear();
+      _file = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        appBar: AppBar(
-          title: const Text("Las 2 Antonias"),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        title: Text(
+          "L A S  2  A N T O N I A S",
+          style: GoogleFonts.inconsolata(),
         ),
-        drawer: SupDrawer(
-          onProfileTap: gtProfilePage,
-          onSignOutTap: signUserOut,
-          onMapTap: gtMapPage,
-          onStoreTap: gtStorePage,
-        ),
-        body: Center(
-          child: Column(
-            children: [
-              //timeline
-              Expanded(
-                child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection("Posts del usuario")
-                        .orderBy(
-                          "TimeStamp",
-                          descending: false,
-                        )
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return ListView.builder(
-                            itemCount: snapshot.data!.docs.length,
-                            itemBuilder: (context, index) {
-                              final post = snapshot.data!.docs[index];
-                              return TimeLinePost(
-                                message: post['Message'],
-                                user: post['UserEmail'],
-                                postId: post.id,
-                                likes: List<String>.from(post['Likes'] ?? []),
-                                time: formatTime(post['TimeStamp']),
-                              );
-                            });
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
+      ),
+      drawer: SupDrawer(
+        onProfileTap: gtProfilePage,
+        onSignOutTap: signUserOut,
+        onMapTap: gtMapPage,
+        onStoreTap: gtStorePage,
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            // Timeline
+            Expanded(
+              child: StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("Posts del usuario")
+                    .orderBy(
+                      "TimeStamp",
+                      descending: false,
+                    )
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        final post = snapshot.data!.docs[index];
+                        return TimeLinePost(
+                          message: post['Message'],
+                          user: post['UserEmail'],
+                          postId: post.id,
+                          likes: List<String>.from(post['Likes'] ?? []),
+                          time: formatTime(post['TimeStamp']),
+                          image: post['Image'] != null ? post['Image'] : null,
                         );
-                      }
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }),
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
               ),
-              //mensaje
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFieldW(
-                        controller: textController,
-                        hintText: 'Publica lo que gustes :3',
-                        obscureText: false,
-                      ),
-                    ),
-                    Column(
-                      children: [
-                        IconButton(
-                          onPressed: () => _imageSelect(context),
-                          icon: const Icon(Icons.photo),
-                        ),
-                        const Text(
-                          'Subir Imagen',
-                          style: TextStyle(fontSize: 8),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      onPressed: postMessage,
-                      icon: const Icon(Icons.arrow_circle_up_outlined),
-                    ),
-                  ],
-                ),
-              ),
-              //verificacion de logeo(solo pruebas)
-              Text('Logeado como ${user.email!}'),
+            ),
 
-              const SizedBox(
-                height: 25,
-              )
-            ],
-          ),
-        )
-        //body: Center(
-        //
-        //),
-        );
+            // Mensaje
+            Padding(
+              padding: const EdgeInsets.only(top: 8, right: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFieldW(
+                      controller: textController,
+                      hintText: 'Publica lo que gustes..',
+                      obscureText: false,
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      IconButton(
+                        onPressed: () => _imageSelect(context),
+                        icon: const Icon(
+                          Icons.photo,
+                          color: Colors.deepOrange,
+                        ),
+                      ),
+                      const Text(
+                        'Imagen',
+                        style: TextStyle(fontSize: 8, color: Colors.deepOrange),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      )
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: postMessage,
+                    icon: const Icon(
+                      Icons.arrow_circle_up_outlined,
+                      color: Colors.deepOrange,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(
+              height: 2,
+            ),
+
+            // Verificación de logeo (solo pruebas)
+            Text(
+              'Tus publicaciones serán con el usuario ${user.email!}',
+              style: const TextStyle(fontSize: 10, color: Colors.deepOrange),
+            ),
+
+            const SizedBox(
+              height: 25,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

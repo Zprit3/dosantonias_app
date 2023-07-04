@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class StorePage extends StatelessWidget {
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
- StorePage({super.key});
+  StorePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis Tickets'),
+        title: Text(
+          'M I S  T I C K E T S',
+          style: GoogleFonts.inconsolata(),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 25.0, top: 25),

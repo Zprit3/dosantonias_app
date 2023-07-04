@@ -8,4 +8,4 @@ export 'textbox_widget.dart';
 export 'postcomments_widget.dart';
 export 'commentbutton_widget.dart';
 export 'deletebutton_widget.dart';
-export 'pickimage.dart';
+export 'pickimage_widget.dart';

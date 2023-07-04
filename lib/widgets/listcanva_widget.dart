@@ -20,12 +20,12 @@ class ListCanva extends StatelessWidget {
         //reemplazar con imagen
         leading: Icon(
           icon,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.tertiary,
         ),
         onTap: onTap,
         title: Text(text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
             )),
       ),
     );
