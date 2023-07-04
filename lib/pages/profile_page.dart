@@ -140,25 +140,46 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (snapshot.hasData) {
                       final posts = snapshot.data!.docs;
 
-                      return Column(
-                        children: posts.map((post) {
-                          final message = post['Message'];
-                          final time = formatTime(post['TimeStamp']);
+                      return Row(
+                        children: [
+                          Column(
+                            children: posts.map((post) {
+                              final message = post['Message'];
+                              final time = formatTime(post['TimeStamp']);
+                              final image = post['Image'];
 
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 20.0, top: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                PostComment(
-                                  text: message,
-                                  user: user.email!,
-                                  time: time,
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 20.0, top: 4),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (image != null)
+                                      // ignore: sized_box_for_whitespace
+                                      Container(
+                                        width: 150,
+                                        child: Image.network(
+                                          image,
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: 150,
+                                        ),
+                                      ),
+                                    Text(
+                                      message,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      time,
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       );
                     } else if (snapshot.hasError) {
                       return Center(

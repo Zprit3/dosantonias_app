@@ -152,8 +152,8 @@ class _TimeLinePostState extends State<TimeLinePost> {
         color: Theme.of(context).colorScheme.primary,
         borderRadius: BorderRadius.circular(10),
       ),
-      margin: const EdgeInsets.only(top: 25, left: 25, right: 25),
-      padding: const EdgeInsets.all(25),
+      margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -167,7 +167,7 @@ class _TimeLinePostState extends State<TimeLinePost> {
                   if (widget.image != null)
                     // ignore: sized_box_for_whitespace
                     Container(
-                      width: 250,
+                      width: 310,
                       child: Image.network(
                         widget.image!,
                         fit: BoxFit.cover,
@@ -175,7 +175,7 @@ class _TimeLinePostState extends State<TimeLinePost> {
                         height: 400,
                       ),
                     ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   Text(widget.message),
                   const SizedBox(height: 5),
                   Row(
@@ -189,7 +189,6 @@ class _TimeLinePostState extends State<TimeLinePost> {
                   ),
                 ],
               ),
-              if (widget.user == user.email) DeleteButton(onTap: deletePost),
             ],
           ),
           const SizedBox(height: 20),
@@ -216,6 +215,18 @@ class _TimeLinePostState extends State<TimeLinePost> {
                   const SizedBox(height: 5),
                   const Text(
                     '0',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 5),
+              Column(
+                children: [
+                  if (widget.user == user.email)
+                    DeleteButton(onTap: deletePost),
+                  const SizedBox(height: 5),
+                  const Text(
+                    'Borrar',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ],

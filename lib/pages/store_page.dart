@@ -7,7 +7,7 @@ class StorePage extends StatelessWidget {
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
   StorePage({super.key});
-
+//version sin pasarela
   @override
   Widget build(BuildContext context) {
     return Scaffold(

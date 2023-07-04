@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -181,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                           postId: post.id,
                           likes: List<String>.from(post['Likes'] ?? []),
                           time: formatTime(post['TimeStamp']),
-                          image: post['Image'] != null ? post['Image'] : null,
+                          image: post['Image'],
                         );
                       },
                     );
@@ -199,7 +198,7 @@ class _HomePageState extends State<HomePage> {
 
             // Mensaje
             Padding(
-              padding: const EdgeInsets.only(top: 8, right: 20),
+              padding: const EdgeInsets.only(top: 8, right: 10),
               child: Row(
                 children: [
                   Expanded(
@@ -218,13 +217,6 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.deepOrange,
                         ),
                       ),
-                      const Text(
-                        'Imagen',
-                        style: TextStyle(fontSize: 8, color: Colors.deepOrange),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      )
                     ],
                   ),
                   IconButton(
@@ -244,7 +236,7 @@ class _HomePageState extends State<HomePage> {
 
             // Verificación de logeo (solo pruebas)
             Text(
-              'Tus publicaciones serán con el usuario ${user.email!}',
+              '${user.email!} publica con responsabilidad',
               style: const TextStyle(fontSize: 10, color: Colors.deepOrange),
             ),
 
