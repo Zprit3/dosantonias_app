@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:math';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -172,14 +173,14 @@ class _MapPageState extends State<MapPage> {
 
       if (result['isSuccess']) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Captura de pantalla guardada en la galería'),
+          const SnackBar(
+            content: Text('Captura de pantalla guardada en la galería'),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('No se pudo guardar la captura de pantalla'),
+          const SnackBar(
+            content: Text('No se pudo guardar la captura de pantalla'),
           ),
         );
       }
@@ -206,58 +207,39 @@ class _MapPageState extends State<MapPage> {
     final String formattedDistance = totalDistance.toStringAsFixed(2);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: Text(
+          'MAPA DE RUTA',
+          style: GoogleFonts.inconsolata(),
+        ),
+      ),
       body: Stack(
         children: [
           GoogleMap(
             initialCameraPosition: const CameraPosition(
               target: LatLng(-36.6297, -71.8330),
-              zoom: 17,
+              zoom: 16,
             ),
             markers: markers,
+            mapType: MapType.hybrid,
+            myLocationEnabled: true,
             polylines: polyline != null ? <Polyline>{polyline!} : {},
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
             },
           ),
           Positioned(
-            top: 48,
-            left: 16,
+            bottom: 5,
+            right: 5,
+            width: 200,
+            height: 220,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color:
-                    Theme.of(context).colorScheme.background.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Tiempo: $formattedTime',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                  Text(
-                    'Distancia: $formattedDistance metros',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 16,
-            left: 16,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color:
-                    Theme.of(context).colorScheme.background.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(5),
+                    Theme.of(context).colorScheme.background.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
                 children: [
@@ -265,18 +247,19 @@ class _MapPageState extends State<MapPage> {
                     onPressed:
                         timer != null && timer!.isActive ? null : startRoute,
                     child: Text(
-                      'Iniciar',
+                      '   Iniciar ruta    ',
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 5),
                   ElevatedButton(
                     onPressed:
                         timer != null && timer!.isActive ? finishRoute : null,
                     child: Text(
-                      'Terminar',
+                      ' Terminar ruta ',
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).colorScheme.tertiary,
@@ -286,13 +269,33 @@ class _MapPageState extends State<MapPage> {
                   ElevatedButton(
                     onPressed: captureScreenshot,
                     child: Text(
-                      'Capturar',
+                      'Capturar mapa',
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).colorScheme.tertiary,
                       ),
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Column(children: [
+                    Text(
+                      'Cronometro: $formattedTime',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Distancia: $formattedDistance metros',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ])
                 ],
               ),
             ),

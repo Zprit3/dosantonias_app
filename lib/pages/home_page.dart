@@ -145,8 +145,8 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: Text(
-          "L A S  2  A N T O N I A S",
-          style: GoogleFonts.inconsolata(),
+          "TIMELINE",
+          style: GoogleFonts.robotoMono(),
         ),
       ),
       drawer: SupDrawer(
@@ -165,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                     .collection("Posts del usuario")
                     .orderBy(
                       "TimeStamp",
-                      descending: false,
+                      descending: true,
                     )
                     .snapshots(),
                 builder: (context, snapshot) {
