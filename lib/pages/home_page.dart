@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: TextFieldW(
                       controller: textController,
-                      hintText: 'Publica lo que gustes..',
+                      hintText: 'Publica aquí..',
                       obscureText: false,
                     ),
                   ),
@@ -236,7 +236,7 @@ class _HomePageState extends State<HomePage> {
 
             // Verificación de logeo (solo pruebas)
             Text(
-              '${user.email!} publica con responsabilidad',
+              'Conectado como: ${user.email!}',
               style: const TextStyle(fontSize: 10, color: Colors.deepOrange),
             ),
 

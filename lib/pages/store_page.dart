@@ -13,7 +13,7 @@ class StorePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'M I S  T I C K E T S',
+          'S T O R E',
           style: GoogleFonts.inconsolata(),
         ),
       ),
