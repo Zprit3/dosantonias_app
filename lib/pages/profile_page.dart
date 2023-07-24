@@ -72,9 +72,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text(
-          "P E R F I L",
-          style: GoogleFonts.inconsolata(),
+        centerTitle: true,
+        title: const Text(
+          "Perfil",
         ),
       ),
       body: StreamBuilder<DocumentSnapshot>(

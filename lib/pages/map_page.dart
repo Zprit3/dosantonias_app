@@ -209,9 +209,8 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text(
-          'MAPA DE RUTA',
-          style: GoogleFonts.inconsolata(),
+        title: const Text(
+          'Mapa de ruta',
         ),
       ),
       body: Stack(

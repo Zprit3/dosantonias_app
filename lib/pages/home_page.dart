@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => StorePage()),
+      MaterialPageRoute(builder: (context) => const ShopPage()),
     );
   }
 
@@ -144,9 +144,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text(
-          "TIMELINE",
-          style: GoogleFonts.robotoMono(),
+        centerTitle: true,
+        title: const Text(
+          "Timeline",
         ),
       ),
       drawer: SupDrawer(
