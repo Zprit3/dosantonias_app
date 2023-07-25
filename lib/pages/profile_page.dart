@@ -1,10 +1,11 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//import 'package:dosantonias_app/pages/pages.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:dosantonias_app/otherthings/fix_timestamp.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -67,6 +68,31 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _changeProfileImage() async {
+    final picker = ImagePicker();
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final fileBytes = await file.readAsBytes();
+
+      // Subir la imagen a Firebase Storage
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images')
+          .child(user.uid);
+      final uploadTask = storageRef.putData(fileBytes);
+      final snapshot = await uploadTask.whenComplete(() {});
+      if (snapshot.state == TaskState.success) {
+        final downloadUrl = await storageRef.getDownloadURL();
+
+        // Guardar en Firestore
+        await usersCollection.doc(user.email).update({'photoURL': downloadUrl});
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,10 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
       body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection("Usuarios")
-            .doc(user.email)
-            .snapshots(),
+        stream: usersCollection.doc(user.email).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final userData = snapshot.data!.data() as Map<String, dynamic>;
@@ -90,13 +113,27 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 const SizedBox(height: 20),
                 //imagen de perfil
-                const Icon(Icons.person, size: 72),
+                GestureDetector(
+                  onTap: _changeProfileImage,
+                  child: CircleAvatar(
+                    radius: 36,
+                    backgroundImage: userData['photoURL'] != null
+                        ? NetworkImage(userData['photoURL'])
+                        : const AssetImage('lib/images/icoMainBW.png')
+                            as ImageProvider<Object>?,
+                    child: userData['photoURL'] == null
+                        ? const Icon(Icons.person, size: 36)
+                        : null,
+                  ),
+                ),
                 const SizedBox(height: 20),
 
                 //email
-                Text(user.email!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey[600])),
+                Text(
+                  user.email!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
                 const SizedBox(height: 20),
                 //detalles
                 Padding(
@@ -131,8 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
 
                 StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection("Posts del usuario")
+                  stream: userPostsCollection
                       .where('UserEmail', isEqualTo: user.email)
                       .orderBy('TimeStamp', descending: true)
                       .snapshots(),
@@ -167,9 +203,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ),
                                     Text(
                                       message,
-                                      style: TextStyle(fontSize: 16),
+                                      style: const TextStyle(fontSize: 16),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       time,
                                       style: TextStyle(color: Colors.grey[600]),

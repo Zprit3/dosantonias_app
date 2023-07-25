@@ -225,10 +225,6 @@ class _TimeLinePostState extends State<TimeLinePost> {
                   if (widget.user == user.email)
                     DeleteButton(onTap: deletePost),
                   const SizedBox(height: 5),
-                  const Text(
-                    'Borrar',
-                    style: TextStyle(color: Colors.grey),
-                  ),
                 ],
               ),
             ],

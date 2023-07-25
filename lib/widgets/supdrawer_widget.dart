@@ -5,30 +5,37 @@ class SupDrawer extends StatelessWidget {
   final void Function()? onProfileTap;
   final void Function()? onSignOutTap;
   final void Function()? onMapTap;
+  final void Function()? onMyRouteTap;
   final void Function()? onStoreTap;
+  final void Function()? onMyTicketsTap;
   const SupDrawer(
       {super.key,
       required this.onProfileTap,
       required this.onSignOutTap,
       required this.onMapTap,
-      required this.onStoreTap});
+      required this.onStoreTap,
+      required this.onMyRouteTap,
+      required this.onMyTicketsTap});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       child:
           Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Column(
           children: [
             //header
             DrawerHeader(
-              child: Icon(
-                Icons.person,
-                color: Theme.of(context).colorScheme.surface,
-                size: 64,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              child: Image.asset(
+                'lib/images/icoMain.png', // Reemplaza 'tu_imagen.png' con la ruta de tu imagen en los assets
+                width: 120,
               ),
             ),
+
             //home
             ListCanva(
               icon: Icons.home,
@@ -45,12 +52,22 @@ class SupDrawer extends StatelessWidget {
               text: 'M A P A',
               onTap: onMapTap,
             ),
+            ListCanva(
+              icon: Icons.maps_ugc,
+              text: 'R E C O R R I D O S',
+              onTap: onMyRouteTap,
+            ),
 
             //tienda
             ListCanva(
               icon: Icons.store,
-              text: 'T I C K E T S',
+              text: 'S T O R E',
               onTap: onStoreTap,
+            ),
+            ListCanva(
+              icon: Icons.type_specimen,
+              text: 'M I S  T I C K E T S',
+              onTap: onMyTicketsTap,
             )
           ],
         ),

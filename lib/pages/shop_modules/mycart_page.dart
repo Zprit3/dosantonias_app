@@ -1,3 +1,5 @@
+// ignore_for_file: sort_child_properties_last
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:dosantonias_app/widgets/shopconts_widget.dart';
@@ -170,7 +172,7 @@ class _MyCartPageState extends State<MyCartPage> {
                   color: Colors.black),
             ),
             Text(
-              'Cantidad : ${boughtitems[index].items}',
+              'Items : ${boughtitems[index].items}',
               style: style.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -191,6 +193,16 @@ class _MyCartPageState extends State<MyCartPage> {
             offset: Offset(0, 10),
           ),
         ]);
+    const edgeInsets = const EdgeInsets.symmetric(vertical: 12);
+    var container = Container(
+      padding: const EdgeInsets.all(10),
+      margin: edgeInsets,
+      decoration: boxDecoration,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children2,
+      ),
+    );
     return Dismissible(
       key: Key(boughtitems[index].name),
       onDismissed: (dir) {
@@ -203,7 +215,7 @@ class _MyCartPageState extends State<MyCartPage> {
         padding: const EdgeInsets.all(10),
         margin: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.red,
+          color: Colors.redAccent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
@@ -213,15 +225,7 @@ class _MyCartPageState extends State<MyCartPage> {
         ),
         alignment: Alignment.centerLeft,
       ),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        decoration: boxDecoration,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children2,
-        ),
-      ),
+      child: container,
     );
   }
 

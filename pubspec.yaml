@@ -61,10 +61,19 @@ dependencies:
   awesome_dialog: ^3.1.0
   flutter_custom_clippers: ^2.1.0
   badges: ^3.1.1
+  uuid: ^3.0.7
+  flutter_paypal_checkout: ^1.0.1
+  flutter_paypal: ^0.0.8
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  image_path: "lib/images/ico1.png"
+  android: "launcher_icon"
+  ios: true
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:math';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
@@ -166,26 +167,48 @@ class _MapPageState extends State<MapPage> {
           .first
           .padLeft(8, '0');
       final String formattedDistance = totalDistance.toStringAsFixed(2);
-      final String filename =
-          'screenshot_$timestamp-$formattedTime-$formattedDistance.jpg';
-      final result =
-          await ImageGallerySaver.saveImage(imageBytes!, name: filename);
 
-      if (result['isSuccess']) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Captura de pantalla guardada en la galería'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo guardar la captura de pantalla'),
-          ),
-        );
+      final String userEmail = FirebaseAuth.instance.currentUser!.email!;
+
+      final String recorridoId = '$userEmail-$timestamp';
+
+      final Reference ref =
+          FirebaseStorage.instance.ref().child('capturas/$recorridoId.jpg');
+      final UploadTask uploadTask = ref.putData(imageBytes!);
+
+      final TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() {});
+
+      if (mounted) {
+        // Verificar si el widget está montado antes de llamar a setState
+        if (taskSnapshot.state == TaskState.success) {
+          await FirebaseFirestore.instance
+              .collection("Usuarios")
+              .doc(userEmail)
+              .collection("Recorridos")
+              .doc(recorridoId)
+              .set({
+            'timestamp': FieldValue.serverTimestamp(),
+            'screenshot_url': await ref.getDownloadURL(),
+            'duration': formattedTime,
+            'distance': formattedDistance,
+            // Agrega otros campos relevantes de tu recorrido aquí
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Captura de pantalla guardada en la galería'),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se pudo guardar la captura de pantalla'),
+            ),
+          );
+        }
       }
 
-      print('Ruta de la captura de pantalla guardada: ${result['filePath']}');
+      print('Ruta de la captura de pantalla guardada: ${ref.fullPath}');
     } catch (e) {
       print('Error al capturar la pantalla: $e');
     }
@@ -208,7 +231,7 @@ class _MapPageState extends State<MapPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        centerTitle: true,
         title: const Text(
           'Mapa de ruta',
         ),
@@ -217,9 +240,12 @@ class _MapPageState extends State<MapPage> {
         children: [
           GoogleMap(
             initialCameraPosition: const CameraPosition(
-              target: LatLng(-36.6297, -71.8330),
-              zoom: 16,
+              //target: LatLng(-36.6297, -71.8330), //coihueco
+              target: LatLng(
+                  -36.593958297848815, -72.10361045629182), //Inacap Chillán
+              zoom: 18,
             ),
+            zoomGesturesEnabled: true,
             markers: markers,
             mapType: MapType.hybrid,
             myLocationEnabled: true,

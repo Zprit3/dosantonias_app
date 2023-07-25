@@ -4,6 +4,12 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:dosantonias_app/widgets/shopconts_widget.dart';
 import 'package:dosantonias_app/pages/pages.dart';
 import 'package:dosantonias_app/widgets/models.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
+import 'package:dosantonias_app/otherthings/pay_globals.dart' as globals;
+//import 'package:flutter_paypal_checkout/flutter_paypal_checkout.dart';
+import 'package:flutter_paypal/flutter_paypal.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<CartModel> cartModel;
@@ -102,7 +108,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   ),
                                   const Spacer(),
                                   Text(
-                                    'Medio de pago: MercadoPago',
+                                    'Pago Vía: Paypal',
                                     style: style.copyWith(
                                         fontSize: 12, color: Colors.black),
                                   )
@@ -169,22 +175,69 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Expanded _buildbutton(double screenheight, screenwidth) {
+  String generateUniqueId() {
+    // Obtener la fecha y hora actual
+    DateTime now = DateTime.now();
+
+    // Crear una instancia de Uuid
+    Uuid uuid = const Uuid();
+
+    // Generar el ID unico basado en la fecha y hora
+    String uniqueId =
+        '${now.year}/${_padNumber(now.month)}/${_padNumber(now.day)}/${_padNumber(now.hour)}/${_padNumber(now.minute)}/${_padNumber(now.second)}_${uuid.v4()}';
+
+    return uniqueId;
+  }
+
+  String _padNumber(int number) {
+    // Agregar un cero delante del numero
+    return number.toString().padLeft(2, '0');
+  }
+
+  void _saveProductsToFirebase(List<CartModel> cartModel) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final user = currentUser.email;
+      final userProductsCollection = FirebaseFirestore.instance
+          .collection('Ventas')
+          .doc(user)
+          .collection('TicketsComprados');
+      String ticketId = generateUniqueId();
+      bool isActive = true;
+      for (final product in cartModel) {
+        await userProductsCollection.add({
+          'ticketId': ticketId,
+          'name': product.name,
+          'price': product.price,
+          'quantity': product.items,
+          'status': isActive,
+          'client': user,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
+    }
+  }
+
+  Widget _buildbutton(double screenheight, double screenwidth) {
     return Expanded(
       child: Container(
         width: screenwidth * .6,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), color: white),
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+        ),
         child: MaterialButton(
-          onPressed: () {
+          onPressed: () async {
             setState(() {
               isloading = true;
             });
-            Future.delayed(const Duration(seconds: 3)).then((value) {
-              setState(() {
-                isloading = false;
-              });
-              _buildawesomedialog();
+
+            // Llamada al metodo para iniciar la integración con PayPal
+            _saveProductsToFirebase(widget.cartModel); //esto debe ir despues de aprobar el pago, pero por el error de paypal esta antes para probar
+            await _startPayPalCheckout();
+
+            setState(() {
+              isloading = false;
             });
           },
           child: (isloading)
@@ -218,6 +271,61 @@ class _CheckoutPageState extends State<CheckoutPage> {
             btnOkColor: Colors.deepOrange,
             buttonsBorderRadius: BorderRadius.circular(20))
         .show();
+  }
+
+  Future<void> _startPayPalCheckout() async {
+    String clientId = globals.ppClientID;
+    String secretKey = globals.ppSecretKey1;
+
+    double subtotal = 0;
+    widget.cartModel.forEach((product) {
+      subtotal += product.price * product.items;
+    });
+
+    List<Map<String, dynamic>> transactions = [
+      {
+        "amount": {
+          "total": subtotal.toString(), // Total calculado de los artículos
+          "currency": "USD",
+        },
+        "description": "Pago de productos",
+        "item_list": {
+          "items": widget.cartModel.map((product) {
+            return {
+              "name": product.name,
+              "quantity": product.items,
+              "price": product.price.toString(),
+              "currency": "USD",
+            };
+          }).toList(),
+        },
+      },
+    ];
+
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (BuildContext context) => /*PaypalCheckout*/ UsePaypal(
+        sandboxMode: true,
+        clientId: clientId,
+        secretKey: secretKey,
+        returnURL:
+            "https://testapp.com/payment/success", // URL de retorno en caso de éxito
+        cancelURL:
+            "https://testapp.com/payment/cancel", // URL de retorno en caso de cancelación
+        transactions: transactions,
+        note: "Nota de pago",
+        onSuccess: (Map params) async {
+          print("onSuccess: $params");
+          _saveProductsToFirebase(widget.cartModel);
+          _buildawesomedialog();
+        },
+        onError: (error) {
+          print("onError: $error");
+        },
+        onCancel: () {
+          print('cancelled:');
+        },
+      ),
+    ));
   }
 
   Widget _builditems(

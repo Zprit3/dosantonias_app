@@ -7,7 +7,6 @@ import 'package:dosantonias_app/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class HomePage extends StatefulWidget {
@@ -105,6 +104,23 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void gtMyRoutePage() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MyRoutePage()),
+    );
+  }
+
+  void gtMyTicketsPage() {
+    Navigator.pop(context);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:(context) => MyTicketsPage()),
+    );
+  }
+
   void postMessage() async {
     if (textController.text.isNotEmpty) {
       String? imageUrl;
@@ -154,6 +170,8 @@ class _HomePageState extends State<HomePage> {
         onSignOutTap: signUserOut,
         onMapTap: gtMapPage,
         onStoreTap: gtStorePage,
+        onMyRouteTap: gtMyRoutePage,
+        onMyTicketsTap: gtMyTicketsPage,
       ),
       body: Center(
         child: Column(
@@ -236,7 +254,7 @@ class _HomePageState extends State<HomePage> {
 
             // Verificación de logeo (solo pruebas)
             Text(
-              'Conectado como: ${user.email!}',
+              'Conectado como: ${user.displayName!}',
               style: const TextStyle(fontSize: 10, color: Colors.deepOrange),
             ),
 
