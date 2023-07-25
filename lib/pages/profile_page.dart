@@ -116,13 +116,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 GestureDetector(
                   onTap: _changeProfileImage,
                   child: CircleAvatar(
-                    radius: 36,
+                    backgroundColor: Colors.grey[500],
+                    radius: 50,
                     backgroundImage: userData['photoURL'] != null
-                        ? NetworkImage(userData['photoURL'])
-                        : const AssetImage('lib/images/icoMainBW.png')
+                        ? NetworkImage(
+                            userData['photoURL'],
+                          )
+                        : const AssetImage('lib/images/ico1.png')
                             as ImageProvider<Object>?,
                     child: userData['photoURL'] == null
-                        ? const Icon(Icons.person, size: 36)
+                        ? const Icon(Icons.person, size: 46)
                         : null,
                   ),
                 ),
