@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dosantonias_app/widgets/models.dart';
-import 'package:dosantonias_app/widgets/widgets.dart';
 
 final TextStyle style = GoogleFonts.lato(
     fontSize: 30, color: Colors.white, fontWeight: FontWeight.w700);

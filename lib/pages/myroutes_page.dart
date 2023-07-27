@@ -63,8 +63,7 @@ class MyRoutePage extends StatelessWidget {
                   ),
                 ),
                 subtitle: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 5), // Padding de 5 para el subtítulo
+                  padding: const EdgeInsets.only(left: 5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -80,14 +79,24 @@ class MyRoutePage extends StatelessWidget {
                     ],
                   ),
                 ),
+                // ... resto del código
 
-                /*trailing: ElevatedButton(
+                trailing: ElevatedButton(
                   onPressed: () {
-                    // Lógica para publicar en el timeline
-                    // Puedes utilizar Navigator.push para navegar a la página de publicación.
+                    String duration = recorrido['duration'];
+                    String distance = recorrido['distance'];
+                    _publishRecorrido(
+                      context,
+                      duration,
+                      distance,
+                      date,
+                      recorrido['screenshot_url'],
+                    );
                   },
-                  child: const Text('Publicar en el Timeline'),
-                ),*/
+                  child: const Text('Publicar'),
+                ),
+
+// ... resto del código
               );
             },
           );
@@ -109,6 +118,23 @@ class MyRoutePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _publishRecorrido(BuildContext context, String duration, String distance,
+      DateTime date, String screenshotUrl) async {
+    // Guardar en Firebase Firestore
+    FirebaseFirestore.instance.collection("Posts del usuario").add({
+      'UserEmail': FirebaseAuth.instance.currentUser!.email,
+      'Message': 'Mi recorrido: Tiempo: $duration Distancia: $distance m',
+      'TimeStamp': Timestamp.now(),
+      'Likes': [],
+      'Image': screenshotUrl,
+    });
+
+    // Mostrar un mensaje de éxito después de la publicación.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Recorrido publicado en el Timeline')),
     );
   }
 }
