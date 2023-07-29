@@ -93,7 +93,7 @@ class MyRoutePage extends StatelessWidget {
                       recorrido['screenshot_url'],
                     );
                   },
-                  child: const Text('Publicar'),
+                  child: const Text('Publicar', style: TextStyle(color: Colors.orangeAccent),),
                 ),
 
 // ... resto del código

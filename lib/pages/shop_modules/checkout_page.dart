@@ -21,6 +21,7 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   var isloading = false;
+  
   @override
   Widget build(BuildContext context) {
     var screenheight = MediaQuery.of(context).size.height;
@@ -195,28 +196,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void _saveProductsToFirebase(List<CartModel> cartModel) async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      final user = currentUser.email;
-      final userProductsCollection = FirebaseFirestore.instance
-          .collection('Ventas')
-          .doc(user)
-          .collection('TicketsComprados');
-      String ticketId = generateUniqueId();
-      bool isActive = true;
-      for (final product in cartModel) {
-        await userProductsCollection.add({
-          'ticketId': ticketId,
-          'name': product.name,
-          'price': product.price,
-          'quantity': product.items,
-          'status': isActive,
-          'client': user,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-      }
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser != null) {
+    final user = currentUser.email;
+    final userProductsCollection = FirebaseFirestore.instance
+        .collection('Ventas')
+        .doc(user)
+        .collection('TicketsComprados');
+
+    bool isActive = true;
+    for (final product in cartModel) {
+      // Utilizar `add` genera un id automatico en firebase, recordar para usar en adminsite
+      await userProductsCollection.add({
+        'name': product.name,
+        'price': product.price,
+        'quantity': product.items,
+        'status': isActive,
+        'client': user,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
     }
   }
+}
+
 
   Widget _buildbutton(double screenheight, double screenwidth) {
     return Expanded(

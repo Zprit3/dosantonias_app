@@ -8,6 +8,7 @@ class SupDrawer extends StatelessWidget {
   final void Function()? onMyRouteTap;
   final void Function()? onStoreTap;
   final void Function()? onMyTicketsTap;
+  final void Function()? onAdminSiteTap;
   const SupDrawer(
       {super.key,
       required this.onProfileTap,
@@ -15,7 +16,8 @@ class SupDrawer extends StatelessWidget {
       required this.onMapTap,
       required this.onStoreTap,
       required this.onMyRouteTap,
-      required this.onMyTicketsTap});
+      required this.onMyTicketsTap,
+      required this.onAdminSiteTap});
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +70,12 @@ class SupDrawer extends StatelessWidget {
               icon: Icons.type_specimen,
               text: 'M I S  T I C K E T S',
               onTap: onMyTicketsTap,
+            ),
+            SizedBox(height: 20),
+            ListCanva(
+              icon: Icons.admin_panel_settings,
+              text: 'A D M I N  S I T E',
+              onTap: onAdminSiteTap,
             )
           ],
         ),

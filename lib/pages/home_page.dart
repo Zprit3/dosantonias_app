@@ -116,9 +116,14 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder:(context) => MyTicketsPage()),
+      MaterialPageRoute(builder: (context) => MyTicketsPage()),
     );
+  }
+
+  void gtAdminSiteTap() {
+    Navigator.pop(context);
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => AdminSitePage()));
   }
 
   void postMessage() async {
@@ -172,6 +177,7 @@ class _HomePageState extends State<HomePage> {
         onStoreTap: gtStorePage,
         onMyRouteTap: gtMyRoutePage,
         onMyTicketsTap: gtMyTicketsPage,
+        onAdminSiteTap: gtAdminSiteTap,
       ),
       body: Center(
         child: Column(
@@ -232,7 +238,7 @@ class _HomePageState extends State<HomePage> {
                         onPressed: () => _imageSelect(context),
                         icon: const Icon(
                           Icons.photo,
-                          color: Colors.deepOrange,
+                          color: Colors.orange,
                         ),
                       ),
                     ],
@@ -241,7 +247,7 @@ class _HomePageState extends State<HomePage> {
                     onPressed: postMessage,
                     icon: const Icon(
                       Icons.arrow_circle_up_outlined,
-                      color: Colors.deepOrange,
+                      color: Colors.orange,
                     ),
                   ),
                 ],
@@ -249,7 +255,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             const SizedBox(
-              height: 2,
+              height: 5,
             ),
 
             // Verificación de logeo (solo pruebas)
@@ -259,7 +265,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             const SizedBox(
-              height: 25,
+              height: 10,
             ),
           ],
         ),
