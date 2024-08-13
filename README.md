@@ -40,7 +40,7 @@ Sigue estos pasos para configurar el proyecto en tu máquina local:
 
 ## Capturas de Pantalla
 
-*(Aquí puedes agregar capturas de pantalla de la aplicación para mostrar la interfaz y las funcionalidades principales.)*
+-CAMBIOS-
 
 ## Contribuciones
 
